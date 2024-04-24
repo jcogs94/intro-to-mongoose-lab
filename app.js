@@ -13,6 +13,22 @@ const connect = async () => {
     console.log('Disconnected from database...');
 }
 
+const createCustomer = async () => {
+    console.log('Customer entry created');
+}
+
+const viewCustomer = async () => {
+    console.log('Customer entry displayed');
+}
+
+const updateCustomer = async () => {
+    console.log('Customer entry updated');
+}
+
+const deleteCustomer = async () => {
+    console.log('Customer entry deleted');
+}
+
 // Validates user input by determining it is an integer
 // between 1-5
 const validateInput = (input) => {
@@ -27,6 +43,7 @@ const validateInput = (input) => {
 // is given
 const userPrompt = () => {
     let validInput = false;
+    let userInput = '';
     console.clear();
     
     console.log('Welcome to the CRM\n');
@@ -38,13 +55,28 @@ const userPrompt = () => {
     console.log('  5. Quit\n');
     
     while (validInput === false) {
-        let userInput = prompt('Number of action you would like to run: ');
+        userInput = prompt('Number of action you would like to run: ');
         
         if (validateInput(userInput)) {
             validInput = true;
         } else {
             console.log('Invalid input. Try again.');
         }
+    }
+
+    switch (userInput) {
+        case '1':
+            createCustomer();
+            break;
+        case '2':
+            viewCustomer();
+            break;
+        case '3':
+            updateCustomer();
+            break;
+        case '4':
+            deleteCustomer();
+            break;
     }
 }
 
