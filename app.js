@@ -4,6 +4,13 @@ const mongoose = require('mongoose');
 const Customer = require('./models/customer.js');
 const prompt = require('prompt-sync')();
 
+class CustomerEntry {
+    constructor(entry) {
+        this.id = entry.id,
+        this.name = entry.name,
+        this.age = entry.age
+    }
+}
 
 const connect = async () => {
     await mongoose.connect(process.env.MONGODB_URI);
@@ -12,6 +19,16 @@ const connect = async () => {
 
 const disconnect = async () => {
     await mongoose.disconnect();
+}
+
+const displayEntries = async (entries) => {
+    let customerDisplayArr = [];
+    
+    for (let i = 0; i < entries.length; i++) {
+        customerDisplayArr.push(new CustomerEntry(entries[i]));
+    }
+
+    console.table(customerDisplayArr);
 }
 
 const createCustomer = async () => {
@@ -49,7 +66,18 @@ const createCustomer = async () => {
 }
 
 const viewCustomer = async () => {
-    console.log('Customer entry displayed');
+    
+    
+    console.clear();
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    console.log('~~~~~~~Customer entries~~~~~~~');
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    
+    console.log('\nHere is a list of the current customer entries:\n');
+
+    const allCustomers = await Customer.find();
+    await displayEntries(allCustomers);
+
     prompt('[Enter to continue]');
     runQueries(false);
 }
