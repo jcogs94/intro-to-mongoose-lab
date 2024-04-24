@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const Customer = require('./models/customer.js');
 const prompt = require('prompt-sync')();
 
+// Class used to create more useable objects, enabling
+// a better user experience utilizing tables
 class CustomerEntry {
     constructor(entry) {
         this.id = entry.id,
@@ -21,6 +23,9 @@ const disconnect = async () => {
     await mongoose.disconnect();
 }
 
+// Returns an array of the objects created by CustomerEntry
+// class. Enables this array to be used in tables and improve
+// user experience
 const getEntryArray = async (entries) => {
     let customerDisplayArr = [];
     
@@ -66,8 +71,6 @@ const createCustomer = async () => {
 }
 
 const viewCustomer = async () => {
-    
-    
     console.clear();
     console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
     console.log('~~~~~~~Customer entries~~~~~~~');
