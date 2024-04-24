@@ -82,6 +82,9 @@ const userPrompt = () => {
         case '4':
             deleteCustomer();
             break;
+        case '5':
+            console.log('exiting...');
+            break;
     }
 }
 
