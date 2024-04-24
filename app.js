@@ -7,26 +7,32 @@ const prompt = require('prompt-sync')();
 
 const connect = async () => {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('Connected to database...');
-    await runQueries();
+    await runQueries(true);
     await mongoose.disconnect();
-    console.log('Disconnected from database...');
 }
 
 const createCustomer = async () => {
     console.log('Customer entry created');
+    prompt('[Enter to continue]');
+    runQueries(false);
 }
 
 const viewCustomer = async () => {
     console.log('Customer entry displayed');
+    prompt('[Enter to continue]');
+    runQueries(false);
 }
 
 const updateCustomer = async () => {
     console.log('Customer entry updated');
+    prompt('[Enter to continue]');
+    runQueries(false);
 }
 
 const deleteCustomer = async () => {
     console.log('Customer entry deleted');
+    prompt('[Enter to continue]');
+    runQueries(false);
 }
 
 // Validates user input by determining it is an integer
@@ -46,7 +52,6 @@ const userPrompt = () => {
     let userInput = '';
     console.clear();
     
-    console.log('Welcome to the CRM\n');
     console.log('What would you like to do?\n');
     console.log('  1. Create a customer');
     console.log('  2. View all customers');
@@ -80,16 +85,13 @@ const userPrompt = () => {
     }
 }
 
-const runQueries = async () => {
-    console.log('Queries running...');
-
-    // const username = prompt('What is your name? ');
-    // console.log(`Your name is ${username}`);
+const runQueries = async (start) => {
+    if (start === true) {
+        console.log('Welcome to the CRM\n');
+        userPrompt();
+    } else {
+        userPrompt();
+    }
 }
 
-const startApp = async () => {
-    userPrompt();
-    // connect();
-}
-
-startApp();
+connect();
