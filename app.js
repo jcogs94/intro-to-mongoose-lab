@@ -21,14 +21,14 @@ const disconnect = async () => {
     await mongoose.disconnect();
 }
 
-const displayEntries = async (entries) => {
+const getEntryArray = async (entries) => {
     let customerDisplayArr = [];
     
     for (let i = 0; i < entries.length; i++) {
         customerDisplayArr.push(new CustomerEntry(entries[i]));
     }
 
-    console.table(customerDisplayArr);
+    return customerDisplayArr;
 }
 
 const createCustomer = async () => {
@@ -76,7 +76,8 @@ const viewCustomer = async () => {
     console.log('\nHere is a list of the current customer entries:\n');
 
     const allCustomers = await Customer.find();
-    await displayEntries(allCustomers);
+    let allCustomersArr = await getEntryArray(allCustomers);
+    console.table(allCustomersArr);
 
     prompt('[Enter to continue]');
     runQueries(false);
