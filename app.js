@@ -8,11 +8,42 @@ const prompt = require('prompt-sync')();
 const connect = async () => {
     await mongoose.connect(process.env.MONGODB_URI);
     await runQueries(true);
+}
+
+const disconnect = async () => {
     await mongoose.disconnect();
 }
 
 const createCustomer = async () => {
-    console.log('Customer entry created');
+    console.clear();
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    console.log('~~~~~Create customer entry~~~~~');
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    
+    console.log("\nPlease enter the new customer's information below.");
+    
+    let name = prompt('Name: ');
+    
+    let age = '';
+    let ageValid = false;
+    while (ageValid === false) {
+        age = prompt('Age: ');
+        if (isNaN(parseInt(age))) {
+            console.log('\nInvalid input. Please try again.');
+        } else {
+            ageValid = true;
+        }
+    }
+
+    const customerEntry = {
+        name: name,
+        age: age
+    }
+
+    const newCustomer = await Customer.create(customerEntry);
+    console.log('\nCustomer created successfully...');
+    console.log(`    id: ${newCustomer.id}\n  Name: ${newCustomer.name}\n   Age: ${newCustomer.age}\n\n`);
+
     prompt('[Enter to continue]');
     runQueries(false);
 }
@@ -50,7 +81,6 @@ const validateInput = (input) => {
 const userPrompt = () => {
     let validInput = false;
     let userInput = '';
-    console.clear();
     
     console.log('What would you like to do?\n');
     console.log('  1. Create a customer');
@@ -84,11 +114,13 @@ const userPrompt = () => {
             break;
         case '5':
             console.log('exiting...');
+            disconnect();
             break;
     }
 }
 
 const runQueries = async (start) => {
+    console.clear();
     if (start === true) {
         console.log('Welcome to the CRM\n');
         userPrompt();
