@@ -101,7 +101,7 @@ const deleteCustomer = async () => {
 // Validates user input by determining it is an integer
 // between 1-5
 const validateInput = (input) => {
-    if (parseInt(input) != NaN && 6 > parseInt(input) && parseInt(input) > 0) {
+    if (isNaN(parseInt(input)) === false && 6 > parseInt(input) && parseInt(input) > 0) {
         return true;
     } else {
         return false;
