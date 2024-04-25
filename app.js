@@ -15,6 +15,8 @@ class CustomerEntry {
 }
 
 const connect = async () => {
+    console.clear();
+    console.log('Connecting...');
     await mongoose.connect(process.env.MONGODB_URI);
     await runQueries(true);
 }
@@ -87,6 +89,30 @@ const viewCustomer = async () => {
 }
 
 const updateCustomer = async () => {
+    console.clear();
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    console.log('~~~~~Update Customer Entries~~~~~');
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    
+    console.log('\nHere is a list of the current customer entries:\n');
+
+    const allCustomers = await Customer.find();
+    let allCustomersArr = await getEntryArray(allCustomers);
+    console.table(allCustomersArr);
+
+    console.log();
+    let userSelection = '';
+    let validSelection = false;
+    
+    while (validSelection === false) {
+        userSelection = prompt('Please enter the index of the entry you would like to update: ');
+        validSelection = validateInput(userSelection, 'updateCustomer', allCustomersArr);
+
+        if (validSelection === false) {
+            console.log('Invalid input. Try again.');
+        }
+    }
+    
     console.log('Customer entry updated');
     prompt('[Enter to continue]');
     runQueries(false);
@@ -100,11 +126,19 @@ const deleteCustomer = async () => {
 
 // Validates user input by determining it is an integer
 // between 1-5
-const validateInput = (input) => {
-    if (isNaN(parseInt(input)) === false && 6 > parseInt(input) && parseInt(input) > 0) {
-        return true;
-    } else {
-        return false;
+const validateInput = (input, selectionType, data) => {
+    if (selectionType === 'userPrompt') {
+        if (isNaN(parseInt(input)) === false && 6 > parseInt(input) && parseInt(input) > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    } else if (selectionType === 'updateCustomer') {
+        if (isNaN(parseInt(input)) === false && parseInt(input) >= 0 && parseInt(input) < data.length) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 
@@ -124,7 +158,7 @@ const userPrompt = () => {
     while (validInput === false) {
         userInput = prompt('Number of action you would like to run: ');
         
-        if (validateInput(userInput)) {
+        if (validateInput(userInput, 'userPrompt')) {
             validInput = true;
         } else {
             console.log('Invalid input. Try again.');
