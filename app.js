@@ -38,10 +38,53 @@ const getEntryArray = async (entries) => {
     return customerDisplayArr;
 }
 
+// Validates user input by determining it is an integer
+// between 1-5
+const validateInput = (input, selectionType, data) => {
+    // Validation for multiple functions, ensures user input is valid
+    if (selectionType === 'userPrompt') {
+        if (isNaN(parseInt(input)) === false && 6 > parseInt(input) && parseInt(input) > 0) {               // ensures user input is a number from 1-5
+            return true;
+        } else { return false };
+    } else if (selectionType === 'selectCustomer') {
+        if (isNaN(parseInt(input)) === false && parseInt(input) >= 0 && parseInt(input) < data.length) {    // ensures user input is a valid index within the current entries array
+            return true;
+        } else { return false };
+    } else if (selectionType === 'updateCustomer') {                                                        // 1 and 2 are the only valid inputs, all else false
+        if (parseInt(input) === 1 || parseInt(input) === 2) {
+            return true;
+        } else { return false };
+    }
+}
+
+const updateEntry = async (data, customerSelection, customerAttr, value) => {
+    // Stores the id of the selected entry for easier access
+    let id = data[customerSelection].id;
+
+    // Updates the entry based on name/age input
+    if (customerAttr === 'name') {
+        await Customer.findByIdAndUpdate(id, { name: value });
+    } else {
+        await Customer.findByIdAndUpdate(id, { age: parseInt(value) });
+    }
+
+    // Varifies the entry has been successfully updated based on user input
+    let updatedCustomer = await Customer.findById(id);
+    if (customerAttr === 'name') {
+        if (updatedCustomer.name === value) {
+            return true;
+        } else { return false };
+    } else if (customerAttr === 'age') {
+        if (updatedCustomer.age === parseInt(value)) {
+            return true;
+        } else { return false };
+    }
+}
+
 const createCustomer = async () => {
     console.clear();
     console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-    console.log('~~~~~Create customer entry~~~~~');
+    console.log('~~~~~Create Customer Entry~~~~~');
     console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
     
     console.log("\nPlease enter the new customer's information below.");
@@ -74,9 +117,9 @@ const createCustomer = async () => {
 
 const viewCustomer = async () => {
     console.clear();
-    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-    console.log('~~~~~~~Customer entries~~~~~~~');
-    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    console.log('~~~~View Customer Entries~~~~');
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
     
     console.log('\nHere is a list of the current customer entries:\n');
 
@@ -88,34 +131,10 @@ const viewCustomer = async () => {
     runQueries(false);
 }
 
-const updateEntry = async (data, customerSelection, customerAttr, value) => {
-    // Stores the id of the selected entry for easier access
-    let id = data[customerSelection].id;
-
-    // Updates the entry based on name/age input
-    if (customerAttr === 'name') {
-        await Customer.findByIdAndUpdate(id, { name: value });
-    } else {
-        await Customer.findByIdAndUpdate(id, { age: parseInt(value) });
-    }
-
-    // Varifies the entry has been successfully updated based on user input
-    let updatedCustomer = await Customer.findById(id);
-    if (customerAttr === 'name') {
-        if (updatedCustomer.name === value) {
-            return true;
-        } else { return false };
-    } else if (customerAttr === 'age') {
-        if (updatedCustomer.age === parseInt(value)) {
-            return true;
-        } else { return false };
-    }
-}
-
 const updateCustomer = async () => {
     console.clear();
     console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
-    console.log('~~~~~Update Customer Entries~~~~~');
+    console.log('~~~~~~Update Customer Entry~~~~~~');
     console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
     
     console.log('\nHere is a list of the current customer entries:\n');
@@ -132,7 +151,7 @@ const updateCustomer = async () => {
     // While loop ensures valid entry selection
     while (validSelection === false) {
         userSelection = prompt('Please enter the index of the entry you would like to update: ');
-        validSelection = validateInput(userSelection, 'updateCustomer', allCustomersArr);
+        validSelection = validateInput(userSelection, 'selectCustomer', allCustomersArr);
 
         if (validSelection === false) {
             console.log('\nInvalid input. Try again.');
@@ -148,7 +167,7 @@ const updateCustomer = async () => {
     // While loop to ensure user enters 1 or 2
     while (validSelection === false) {
         updateSelection = prompt('Select what you would like to update: ');
-        validSelection = validateInput(updateSelection, 'updateCustomer2');
+        validSelection = validateInput(updateSelection, 'updateCustomer');
         if (validSelection) {
             if (updateSelection === '1') {
                 updateSelection = 'name';
@@ -187,28 +206,43 @@ const updateCustomer = async () => {
 }
 
 const deleteCustomer = async () => {
-    console.log('Customer entry deleted');
-    prompt('[Enter to continue]');
-    runQueries(false);
-}
+    console.clear();
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    console.log('~~~~Delete Customer Entry~~~~');
+    console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+    
+    console.log('\nHere is a list of the current customer entries:\n');
 
-// Validates user input by determining it is an integer
-// between 1-5
-const validateInput = (input, selectionType, data) => {
-    // Validation for multiple functions, ensures user input is valid
-    if (selectionType === 'userPrompt') {
-        if (isNaN(parseInt(input)) === false && 6 > parseInt(input) && parseInt(input) > 0) {               // ensures user input is a number from 1-5
-            return true;
-        } else { return false };
-    } else if (selectionType === 'updateCustomer') {
-        if (isNaN(parseInt(input)) === false && parseInt(input) >= 0 && parseInt(input) < data.length) {    // ensures user input is a valid index within the current entries array
-            return true;
-        } else { return false };
-    } else if (selectionType === 'updateCustomer2') {                                                       // 1 and 2 are the only valid inputs, all else false
-        if (parseInt(input) === 1 || parseInt(input) === 2) {
-            return true;
-        } else { return false };
+    const allCustomers = await Customer.find();
+    let allCustomersArr = await getEntryArray(allCustomers);
+    console.table(allCustomersArr);
+
+    console.log();
+    let selectedIndex = '';
+    let validInput = false;
+    
+    while (validInput === false) {
+        selectedIndex = prompt('Please enter the index of the entry you would like to delete or go (B)ack: ');
+        
+        if (selectedIndex.toUpperCase() === 'B') {
+            validInput = true;
+        } else {
+            validInput = validateInput(selectedIndex, 'selectCustomer', allCustomersArr);
+
+            if (!validInput) {
+                console.log('\nInvalid input. Please try again.');
+            }
+        }
     }
+    
+    if (selectedIndex.toUpperCase() === 'B') {
+        console.log('\n\nGoing back...');
+    } else {
+        console.log('Customer entry deleted');
+        prompt('[Enter to continue]');
+    }
+    
+    runQueries(false);
 }
 
 // Displays user prompt and repeats until a valid input
