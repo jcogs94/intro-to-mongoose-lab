@@ -89,14 +89,17 @@ const viewCustomer = async () => {
 }
 
 const updateEntry = async (data, customerSelection, customerAttr, value) => {
+    // Stores the id of the selected entry for easier access
     let id = data[customerSelection].id;
 
+    // Updates the entry based on name/age input
     if (customerAttr === 'name') {
         await Customer.findByIdAndUpdate(id, { name: value });
     } else {
         await Customer.findByIdAndUpdate(id, { age: parseInt(value) });
     }
 
+    // Varifies the entry has been successfully updated based on user input
     let updatedCustomer = await Customer.findById(id);
     if (customerAttr === 'name') {
         if (updatedCustomer.name === value) {
@@ -117,6 +120,7 @@ const updateCustomer = async () => {
     
     console.log('\nHere is a list of the current customer entries:\n');
 
+    // Finds all customer entries and displays them in a user-friendly table for selection
     const allCustomers = await Customer.find();
     let allCustomersArr = await getEntryArray(allCustomers);
     console.table(allCustomersArr);
@@ -125,6 +129,7 @@ const updateCustomer = async () => {
     let userSelection = '';
     let validSelection = false;
     
+    // While loop ensures valid entry selection
     while (validSelection === false) {
         userSelection = prompt('Please enter the index of the entry you would like to update: ');
         validSelection = validateInput(userSelection, 'updateCustomer', allCustomersArr);
@@ -140,6 +145,7 @@ const updateCustomer = async () => {
     console.log('   1. Name');
     console.log('   2. Age');
 
+    // While loop to ensure user enters 1 or 2
     while (validSelection === false) {
         updateSelection = prompt('Select what you would like to update: ');
         validSelection = validateInput(updateSelection, 'updateCustomer2');
@@ -157,6 +163,7 @@ const updateCustomer = async () => {
     let updateValue = '';
     validSelection = false;
 
+    // While loop to validate a number is entered for age
     while (validSelection === false) {
         updateValue = prompt(`Enter the new ${updateSelection}: `);
         
@@ -167,11 +174,11 @@ const updateCustomer = async () => {
         } else { validSelection = true };
     }
 
+    // Uses updateEntry() to update the entry with the user input
     let updated = await updateEntry(allCustomersArr, userSelection, updateSelection, updateValue);
 
-    if (updated) {
-        console.log('\n\nCustomer entry updated');
-    } else {
+    // Gives user feedback if an error occurs
+    if (!updated) {
         console.log('\nAn error occurred. Please try again.');
     }
 
@@ -188,15 +195,16 @@ const deleteCustomer = async () => {
 // Validates user input by determining it is an integer
 // between 1-5
 const validateInput = (input, selectionType, data) => {
+    // Validation for multiple functions, ensures user input is valid
     if (selectionType === 'userPrompt') {
-        if (isNaN(parseInt(input)) === false && 6 > parseInt(input) && parseInt(input) > 0) {
+        if (isNaN(parseInt(input)) === false && 6 > parseInt(input) && parseInt(input) > 0) {               // ensures user input is a number from 1-5
             return true;
         } else { return false };
     } else if (selectionType === 'updateCustomer') {
-        if (isNaN(parseInt(input)) === false && parseInt(input) >= 0 && parseInt(input) < data.length) {
+        if (isNaN(parseInt(input)) === false && parseInt(input) >= 0 && parseInt(input) < data.length) {    // ensures user input is a valid index within the current entries array
             return true;
         } else { return false };
-    } else if (selectionType === 'updateCustomer2') {
+    } else if (selectionType === 'updateCustomer2') {                                                       // 1 and 2 are the only valid inputs, all else false
         if (parseInt(input) === 1 || parseInt(input) === 2) {
             return true;
         } else { return false };
@@ -216,6 +224,8 @@ const userPrompt = () => {
     console.log('  4. Delete a customer');
     console.log('  5. Quit\n');
     
+    // Uses validateInput() in while loop to ensure user enters
+    // a valid action
     while (validInput === false) {
         userInput = prompt('Number of action you would like to run: ');
         
@@ -226,6 +236,7 @@ const userPrompt = () => {
         }
     }
 
+    // Runs the desired function with the valid input
     switch (userInput) {
         case '1':
             createCustomer();
