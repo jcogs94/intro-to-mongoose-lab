@@ -127,6 +127,7 @@ const viewCustomer = async () => {
     let allCustomersArr = await getEntryArray(allCustomers);
     console.table(allCustomersArr);
 
+    console.log();
     prompt('[Enter to continue]');
     runQueries(false);
 }
@@ -238,7 +239,8 @@ const deleteCustomer = async () => {
     if (selectedIndex.toUpperCase() === 'B') {
         console.log('\n\nGoing back...');
     } else {
-        console.log('Customer entry deleted');
+        await Customer.findByIdAndDelete(allCustomersArr[selectedIndex].id);
+        console.log('\n\nCustomer entry deleted');
         prompt('[Enter to continue]');
     }
     
