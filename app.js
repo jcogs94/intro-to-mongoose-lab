@@ -88,6 +88,27 @@ const viewCustomer = async () => {
     runQueries(false);
 }
 
+const updateEntry = async (data, customerSelection, customerAttr, value) => {
+    let id = data[customerSelection].id;
+
+    if (customerAttr === 'name') {
+        await Customer.findByIdAndUpdate(id, { name: value });
+    } else {
+        await Customer.findByIdAndUpdate(id, { age: parseInt(value) });
+    }
+
+    let updatedCustomer = await Customer.findById(id);
+    if (customerAttr === 'name') {
+        if (updatedCustomer.name === value) {
+            return true;
+        } else { return false };
+    } else if (customerAttr === 'age') {
+        if (updatedCustomer.age === parseInt(value)) {
+            return true;
+        } else { return false };
+    }
+}
+
 const updateCustomer = async () => {
     console.clear();
     console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
@@ -109,11 +130,51 @@ const updateCustomer = async () => {
         validSelection = validateInput(userSelection, 'updateCustomer', allCustomersArr);
 
         if (validSelection === false) {
-            console.log('Invalid input. Try again.');
+            console.log('\nInvalid input. Try again.');
         }
     }
-    
-    console.log('Customer entry updated');
+
+    let updateSelection = '';
+    validSelection = false;
+
+    console.log('   1. Name');
+    console.log('   2. Age');
+
+    while (validSelection === false) {
+        updateSelection = prompt('Select what you would like to update: ');
+        validSelection = validateInput(updateSelection, 'updateCustomer2');
+        if (validSelection) {
+            if (updateSelection === '1') {
+                updateSelection = 'name';
+            } else if (updateSelection === '2') {
+                updateSelection = 'age';
+            }
+        } else {
+            console.log('\nInvalid input. Try again.');
+        }
+    }
+
+    let updateValue = '';
+    validSelection = false;
+
+    while (validSelection === false) {
+        updateValue = prompt(`Enter the new ${updateSelection}: `);
+        
+        if (updateSelection === 'age') {
+            if (isNaN(parseInt(updateValue))) {
+                console.log('\nInvalid input. Please try again.');
+            } else { validSelection = true };
+        } else { validSelection = true };
+    }
+
+    let updated = await updateEntry(allCustomersArr, userSelection, updateSelection, updateValue);
+
+    if (updated) {
+        console.log('\n\nCustomer entry updated');
+    } else {
+        console.log('\nAn error occurred. Please try again.');
+    }
+
     prompt('[Enter to continue]');
     runQueries(false);
 }
@@ -130,15 +191,15 @@ const validateInput = (input, selectionType, data) => {
     if (selectionType === 'userPrompt') {
         if (isNaN(parseInt(input)) === false && 6 > parseInt(input) && parseInt(input) > 0) {
             return true;
-        } else {
-            return false;
-        }
+        } else { return false };
     } else if (selectionType === 'updateCustomer') {
         if (isNaN(parseInt(input)) === false && parseInt(input) >= 0 && parseInt(input) < data.length) {
             return true;
-        } else {
-            return false;
-        }
+        } else { return false };
+    } else if (selectionType === 'updateCustomer2') {
+        if (parseInt(input) === 1 || parseInt(input) === 2) {
+            return true;
+        } else { return false };
     }
 }
 
